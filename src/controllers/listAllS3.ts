@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { ListObjectsV2Command, ListObjectsV2CommandOutput } from "@aws-sdk/client-s3";
 import s3 from "../utils/s3Client.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // You'll need to set this environment variable or pass it as a parameter
 const BUCKET = process.env.S3_BUCKET;
@@ -12,6 +15,7 @@ interface S3FileObject {
 export const listAllS3 = async (req: Request, res: Response): Promise<void> => {
     try {
         const email: string = req.body.email;
+        console.log("email = ", email);
 
         if (!email || typeof email !== 'string') {
             res.status(400).json({
@@ -22,6 +26,7 @@ export const listAllS3 = async (req: Request, res: Response): Promise<void> => {
         }
 
         if (!BUCKET) {
+            console.log("BUCKET = ", BUCKET);
             res.status(500).json({
                 success: false,
                 error: "S3_BUCKET environment variable is not configured"

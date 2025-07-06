@@ -1,8 +1,11 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import dotenv from "dotenv";
 
-const REGION = process.env.AWS_REGION;
-const ACCESS_KEY = process.env.AWS_ACCESS_KEY;
-const SECRET_KEY = process.env.AWS_SECRET_KEY;
+dotenv.config();
+
+const REGION = process.env.S3_REGION;
+const ACCESS_KEY = process.env.S3_ACCESS_KEY;
+const SECRET_KEY = process.env.S3_SECRET_KEY;
 
 const s3 = new S3Client({
     region: REGION,
