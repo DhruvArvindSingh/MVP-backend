@@ -10,6 +10,7 @@ import uploadFileS3 from "./controllers/uploadFileS3";
 import getFileS3 from "./controllers/getFileS3";
 import deleteFileS3 from "./controllers/deleteFileS3";
 import listAllDropbox from "./controllers/listAllDropbox";
+import getFileDropbox from "./controllers/getFileDropbox";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post("/api/v1/listAllS3", verify, listAllS3);
 app.post("/api/v1/listAllDropbox", verify, listAllDropbox);
+app.post("/api/v1/getFileDropbox", verify, getFileDropbox);
 app.post("/api/v1/signup", hash_pass, signupPost);
 app.post("/api/v1/signin", signinPost);
 app.post("/api/v1/uploadFileS3", verify, uploadFileS3);
