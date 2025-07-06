@@ -7,7 +7,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-export default async function signin_post(req: Request, res: Response, next: NextFunction) {
+export default async function signin_post(req: Request, res: Response) {
     console.log("post signin received");
     const { email, password } = req.body;
     const user = await client.query("SELECT * FROM users WHERE email = $1 AND password = $2", [email, await Promise.resolve(hash(password))]);

@@ -1,7 +1,7 @@
 import client from "../database/index.js";
 import { Request, Response, NextFunction } from "express";
 
-export default async function signup_post(req: Request, res: Response, next: NextFunction) {
+export default async function signup_post(req: Request, res: Response) {
     console.log("POST /signup received");
 
     const { email, password } = req.body;

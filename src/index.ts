@@ -6,6 +6,7 @@ import verify from "./middleware/verify.js";
 import hash_pass from "./middleware/hash_pass.js";
 import signupPost from "./controllers/signupPost.js";
 import signinPost from "./controllers/signinPost.js";
+import uploadFileS3 from "./controllers/uploadFileS3.js";
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/api/v1/listAllS3", verify, listAllS3);
 app.post("/api/v1/signup", hash_pass, signupPost);
 app.post("/api/v1/signin", signinPost);
-
+app.post("/api/v1/uploadFileS3", verify, uploadFileS3);
 
 
 app.listen(3000, () => {
