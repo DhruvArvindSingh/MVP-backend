@@ -9,6 +9,7 @@ import signinPost from "./controllers/signinPost";
 import uploadFileS3 from "./controllers/uploadFileS3";
 import getFileS3 from "./controllers/getFileS3";
 import deleteFileS3 from "./controllers/deleteFileS3";
+import listAllDropbox from "./controllers/listAllDropbox";
 
 dotenv.config();
 
@@ -21,11 +22,13 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.post("/api/v1/listAllS3", verify, listAllS3);
+app.post("/api/v1/listAllDropbox", verify, listAllDropbox);
 app.post("/api/v1/signup", hash_pass, signupPost);
 app.post("/api/v1/signin", signinPost);
 app.post("/api/v1/uploadFileS3", verify, uploadFileS3);
 app.post("/api/v1/getFileS3", verify, getFileS3);
 app.post("/api/v1/deleteFileS3", verify, deleteFileS3);
+
 
 
 app.listen(PORT, () => {
