@@ -142,7 +142,53 @@ Cookie: token=your-jwt-token
 
 ---
 
-### 4. **Upload File to S3**
+### 4. **Upload File to Dropbox**
+```http
+POST /uploadFileDropbox
+```
+
+**Headers:**
+```
+Content-Type: application/json
+Cookie: token=your-jwt-token
+```
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "fileName": "document.txt",
+  "content": "File content here"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "File uploaded to Dropbox successfully",
+  "data": {
+    "fileName": "document.txt",
+    "filePath": "/user@example.com/document.txt",
+    "size": 1024,
+    "modified": "2024-01-15T10:30:00Z",
+    "email": "user@example.com"
+  }
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "error": "Dropbox authentication failed. Please check your access token.",
+  "code": "AUTHENTICATION_FAILED"
+}
+```
+
+---
+
+### 5. **Upload File to S3**
 ```http
 POST /uploadFileS3
 ```
@@ -174,7 +220,7 @@ Cookie: token=your-jwt-token
 
 ---
 
-### 5. **Download File from S3**
+### 6. **Download File from S3**
 ```http
 POST /getFileS3
 ```
@@ -231,7 +277,7 @@ Cookie: token=your-jwt-token
 
 ---
 
-### 6. **Delete File from S3**
+### 7. **Delete File from S3**
 ```http
 POST /deleteFileS3
 ```
@@ -263,7 +309,7 @@ Cookie: token=your-jwt-token
 
 ## 👤 **Authentication Endpoints**
 
-### 7. **User Signup**
+### 8. **User Signup**
 ```http
 POST /signup
 ```
@@ -297,7 +343,7 @@ Content-Type: application/json
 
 ---
 
-### 8. **User Signin**
+### 9. **User Signin**
 ```http
 POST /signin
 ```
