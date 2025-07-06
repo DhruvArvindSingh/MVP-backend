@@ -188,7 +188,50 @@ Cookie: token=your-jwt-token
 
 ---
 
-### 5. **Upload File to S3**
+### 5. **Delete File from Dropbox**
+```http
+POST /deleteFileDropbox
+```
+
+**Headers:**
+```
+Content-Type: application/json
+Cookie: token=your-jwt-token
+```
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "fileName": "document.txt"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "File deleted from Dropbox successfully",
+  "data": {
+    "fileName": "document.txt",
+    "filePath": "/user@example.com/document.txt",
+    "email": "user@example.com"
+  }
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "error": "File not found in Dropbox. The file may have been already deleted or moved.",
+  "code": "FILE_NOT_FOUND"
+}
+```
+
+---
+
+### 6. **Upload File to S3**
 ```http
 POST /uploadFileS3
 ```
@@ -220,7 +263,7 @@ Cookie: token=your-jwt-token
 
 ---
 
-### 6. **Download File from S3**
+### 7. **Download File from S3**
 ```http
 POST /getFileS3
 ```
@@ -277,7 +320,7 @@ Cookie: token=your-jwt-token
 
 ---
 
-### 7. **Delete File from S3**
+### 8. **Delete File from S3**
 ```http
 POST /deleteFileS3
 ```
@@ -309,7 +352,7 @@ Cookie: token=your-jwt-token
 
 ## 👤 **Authentication Endpoints**
 
-### 8. **User Signup**
+### 9. **User Signup**
 ```http
 POST /signup
 ```
@@ -343,7 +386,7 @@ Content-Type: application/json
 
 ---
 
-### 9. **User Signin**
+### 10. **User Signin**
 ```http
 POST /signin
 ```
