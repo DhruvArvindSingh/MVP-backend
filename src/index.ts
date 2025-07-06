@@ -1,12 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
-import { listAllS3 } from "./controllers/listAllS3.js";
+import { listAllS3 } from "./controllers/listAllS3";
 import cookieParser from "cookie-parser";
-import verify from "./middleware/verify.js";
-import hash_pass from "./middleware/hash_pass.js";
-import signupPost from "./controllers/signupPost.js";
-import signinPost from "./controllers/signinPost.js";
-import uploadFileS3 from "./controllers/uploadFileS3.js";
+import verify from "./middleware/verify";
+import hash_pass from "./middleware/hash_pass";
+import signupPost from "./controllers/signupPost";
+import signinPost from "./controllers/signinPost";
+import uploadFileS3 from "./controllers/uploadFileS3";
+import getFileS3 from "./controllers/getFileS3";
 
 dotenv.config();
 
@@ -22,8 +23,9 @@ app.post("/api/v1/listAllS3", verify, listAllS3);
 app.post("/api/v1/signup", hash_pass, signupPost);
 app.post("/api/v1/signin", signinPost);
 app.post("/api/v1/uploadFileS3", verify, uploadFileS3);
+app.post("/api/v1/getFileS3", verify, getFileS3);
 
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
