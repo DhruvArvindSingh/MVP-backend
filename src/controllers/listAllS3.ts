@@ -12,7 +12,7 @@ interface S3FileObject {
     [key: string]: number;
 }
 
-export const listAllS3 = async (req: Request, res: Response): Promise<void> => {
+export default async function listAllS3(req: Request, res: Response): Promise<void> {
     try {
         const email: string = req.body.email;
         console.log("email = ", email);
