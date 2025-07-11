@@ -16,6 +16,7 @@ export default async function listAllS3(req: Request, res: Response): Promise<vo
     try {
         const email: string = req.body.email;
         console.log("email = ", email);
+        console.log("listAllS3 called with email", email);
 
         if (!email || typeof email !== 'string') {
             res.status(400).json({

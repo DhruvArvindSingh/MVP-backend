@@ -1,5 +1,6 @@
 import dropbox from "../utils/dropboxClient";
 import { Request, Response } from "express";
+import { retryApiCall } from "../utils/apiRetry";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -34,7 +35,15 @@ export default async function listAllDropbox(req: Request, res: Response): Promi
             return;
         }
 
-        const response = await dropbox.filesListFolder({ path: `/${email}` });
+        // Wrap Dropbox API call with retry logic
+        const response = await retryApiCall(
+            () => dropbox.filesListFolder({ path: `/${email}` }),
+            {
+                maxAttempts: 3,
+                baseDelay: 1000,
+                maxDelay: 5000
+            }
+        );
         const files = response.result.entries || [];
 
         // Convert Dropbox files to the expected format

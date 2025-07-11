@@ -28,10 +28,10 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+// Increase payload limits for file uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
-
-app.use(express.urlencoded({ extended: true }));
 
 app.post("/api/v1/listAllS3", verify, listAllS3);
 app.post("/api/v1/listAllDropbox", verify, listAllDropbox);

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import dropbox from "../utils/dropboxClient.js";
+import dropbox from "../utils/dropboxClient";
+import { retryApiCall, isRetriableError } from "../utils/apiRetry";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -33,7 +34,15 @@ export default async function getFileDropbox(req: Request, res: Response): Promi
         const filePath = `/${email}/${fileName}`;
         console.log("Full file path:", filePath);
 
-        const response = await dropbox.filesDownload({ path: filePath });
+        // Wrap Dropbox API call with retry logic
+        const response = await retryApiCall(
+            () => dropbox.filesDownload({ path: filePath }),
+            {
+                maxAttempts: 3,
+                baseDelay: 1000,
+                maxDelay: 5000
+            }
+        );
         console.log("Dropbox response status:", response.status);
         console.log("Response result keys:", Object.keys(response.result));
 
