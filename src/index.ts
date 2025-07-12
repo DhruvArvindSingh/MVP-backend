@@ -15,6 +15,7 @@ import getFileDropbox from "./controllers/getFileDropbox";
 import uploadFileDropbox from "./controllers/uploadFileDropbox";
 import deleteFileDropbox from "./controllers/deleteFileDropbox";
 import checkAuth from "./controllers/checkAuth";
+import uploadLogo from "./controllers/uploadLogo";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.post("/api/v1/uploadFileS3", verify, uploadFileS3);
 app.post("/api/v1/getFileS3", verify, getFileS3);
 app.post("/api/v1/deleteFileS3", verify, deleteFileS3);
 app.post("/api/v1/checkAuth", checkAuth);
+app.post("/api/v1/uploadLogo", verify, uploadLogo);
 
 
 
