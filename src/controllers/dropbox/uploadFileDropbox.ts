@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import dropbox from "../utils/dropboxClient.js";
+import dropbox from "../../utils/dropboxClient.js";
 import dotenv from "dotenv";
 
 dotenv.config();

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ListObjectsV2Command, ListObjectsV2CommandOutput } from "@aws-sdk/client-s3";
-import s3 from "../utils/s3Client.js";
+import s3 from "../../utils/s3Client.js";
 import dotenv from "dotenv";
 
 dotenv.config();

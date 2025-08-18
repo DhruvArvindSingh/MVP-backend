@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import s3 from "../utils/s3Client.js";
+import s3 from "../../utils/s3Client.js";
 import dotenv from "dotenv";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 
@@ -49,7 +49,6 @@ export default async function getFileS3(req: Request, res: Response) {
         res.status(200).json({
             message: "File retrieved successfully",
             fileName: fileName,
-            filePath: key,
             content: content,
             lastModified: response.LastModified,
             contentType: response.ContentType

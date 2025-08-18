@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import s3 from "../utils/s3Client.js";
+import s3 from "../../utils/s3Client.js";
 import dotenv from "dotenv";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 

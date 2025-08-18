@@ -1,26 +1,31 @@
-import express from "express";
+import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import listAllS3 from "./controllers/listAllS3";
 import cookieParser from "cookie-parser";
 import verify from "./middleware/verify";
 import hash_pass from "./middleware/hash_pass";
-import signupPost from "./controllers/signupPost";
-import signinPost from "./controllers/signinPost";
-import uploadFileS3 from "./controllers/uploadFileS3";
-import getFileS3 from "./controllers/getFileS3";
-import deleteFileS3 from "./controllers/deleteFileS3";
-import listAllDropbox from "./controllers/listAllDropbox";
-import getFileDropbox from "./controllers/getFileDropbox";
-import uploadFileDropbox from "./controllers/uploadFileDropbox";
-import deleteFileDropbox from "./controllers/deleteFileDropbox";
-import checkAuth from "./controllers/checkAuth";
-import uploadLogo from "./controllers/uploadLogo";
+import {
+    checkAuth,
+    listAllS3,
+    listAllDropbox,
+    getFileDropbox,
+    uploadFileDropbox,
+    deleteFileDropbox,
+    signupPost,
+    signinPost,
+    uploadFileS3,
+    getFileS3, deleteFileS3, uploadLogo,
+    listAllPostgres,
+    uploadFilePostgres,
+    getFilePostgres,
+    deleteFilePostgres
+} from "./controllers";
+import { dbReady } from "./database/index.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3001; // Backend runs on 3001, frontend on 3000
-const app = express();
+const app: Express = express();
 
 // CORS configuration - allow all origins without credentials
 app.use(cors({
@@ -35,21 +40,45 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
-app.post("/api/v1/listAllS3", verify, listAllS3);
+
+//dropbox
 app.post("/api/v1/listAllDropbox", verify, listAllDropbox);
-app.post("/api/v1/getFileDropbox", verify, getFileDropbox);
 app.post("/api/v1/uploadFileDropbox", verify, uploadFileDropbox);
+app.post("/api/v1/getFileDropbox", verify, getFileDropbox);
 app.post("/api/v1/deleteFileDropbox", verify, deleteFileDropbox);
+
+//auth
 app.post("/api/v1/signup", hash_pass, signupPost);
 app.post("/api/v1/signin", hash_pass, signinPost);
+app.post("/api/v1/checkAuth", checkAuth);
+
+//s3
+app.post("/api/v1/listAllS3", verify, listAllS3);
 app.post("/api/v1/uploadFileS3", verify, uploadFileS3);
 app.post("/api/v1/getFileS3", verify, getFileS3);
 app.post("/api/v1/deleteFileS3", verify, deleteFileS3);
-app.post("/api/v1/checkAuth", checkAuth);
 app.post("/api/v1/uploadLogo", verify, uploadLogo);
 
+//postgres
+app.post("/api/v1/listAllPostgres", verify, listAllPostgres);
+app.post("/api/v1/uploadFilePostgres", verify, uploadFilePostgres);
+app.post("/api/v1/getFilePostgres", verify, getFilePostgres);
+app.post("/api/v1/deleteFilePostgres", verify, deleteFilePostgres);
 
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+async function startServer() {
+    try {
+        await dbReady;
+        console.log("📋 Database schema verification completed");
+
+        const port = process.env.PORT || 4000;
+        app.listen(port, () => {
+            console.log(`[server]: Server is running at http://localhost:${port}`);
+        });
+    } catch (error) {
+        console.error("❌ Failed to initialize database connection:", error);
+        process.exit(1);
+    }
+}
+
+startServer();

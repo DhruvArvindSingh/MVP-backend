@@ -12,6 +12,11 @@ let isReconnecting = false;
 const MAX_RECONNECT_ATTEMPTS = 10;
 const BASE_RETRY_DELAY = 1000; // 1 second
 
+let resolveDbReady: () => void;
+const dbReady = new Promise<void>((resolve) => {
+    resolveDbReady = resolve;
+});
+
 // Helper function to calculate exponential backoff delay
 function getRetryDelay(attempt: number): number {
     return Math.min(BASE_RETRY_DELAY * Math.pow(2, attempt), 30000); // Max 30 seconds
@@ -27,6 +32,17 @@ async function setupDatabase() {
             password VARCHAR(255) NOT NULL,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );`);
+        await client.query(`CREATE TABLE IF NOT EXISTS files (
+            id SERIAL PRIMARY KEY,
+            user_email VARCHAR(255) NOT NULL,
+            file_name VARCHAR(255) NOT NULL,
+            file_content TEXT NOT NULL,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_user_email
+                FOREIGN KEY (user_email) REFERENCES users(email)
+                ON DELETE CASCADE
         );`);
     } catch (e) {
         console.error("Error setting up database tables:", e instanceof Error ? e.message : e);
@@ -107,6 +123,7 @@ async function initDb() {
         dbConnected = true;
         reconnectAttempts = 0; // Reset on successful connection
         console.log("✅ Database connected successfully");
+        resolveDbReady();
     } catch (e) {
         console.warn("⚠️  Unable to connect to database. Database features will be disabled.");
         console.warn("Database error:", e instanceof Error ? e.message : e);
@@ -136,4 +153,4 @@ initDb().catch(() => {
 });
 
 export default client;
-export { dbConnected };
+export { dbConnected, dbReady, initDb };

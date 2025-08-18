@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import dropbox from "../utils/dropboxClient";
-import { retryApiCall, isRetriableError } from "../utils/apiRetry";
+import dropbox from "../../utils/dropboxClient";
+import { retryApiCall, isRetriableError } from "../../utils/apiRetry";
 import dotenv from "dotenv";
 
 dotenv.config();
