@@ -29,7 +29,7 @@ import { dbReady } from "./database/index.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3001; // Backend runs on 3001, frontend on 3000
+const PORT = process.env.PORT || 3000; // Backend runs on 3001, frontend on 3000
 const app: Express = express();
 
 // CORS configuration - allow all origins without credentials
@@ -82,9 +82,8 @@ async function startServer() {
         await dbReady;
         console.log("📋 Database schema verification completed");
 
-        const port = process.env.PORT || 4000;
-        app.listen(port, () => {
-            console.log(`[server]: Server is running at http://localhost:${port}`);
+        app.listen(PORT, () => {
+            console.log(`[server]: Server is running at http://localhost:${PORT}`);
         });
     } catch (error) {
         console.error("❌ Failed to initialize database connection:", error);
