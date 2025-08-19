@@ -42,12 +42,8 @@ export default async function deleteFileDropbox(req: Request, res: Response): Pr
         // Send successful response
         res.status(200).json({
             success: true,
-            message: "File deleted from Dropbox successfully",
-            data: {
-                fileName: fileName,
-                filePath: filePath,
-                email: email
-            }
+            message: "File deleted successfully",
+            fileName: fileName
         });
 
     } catch (err: any) {

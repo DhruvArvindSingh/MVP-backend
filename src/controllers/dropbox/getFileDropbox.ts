@@ -147,16 +147,11 @@ export default async function getFileDropbox(req: Request, res: Response): Promi
         // Send successful response
         res.status(200).json({
             success: true,
-            data: {
-                fileName: metadata.name,
-                size: metadata.size,
-                modified: metadata.server_modified || metadata.client_modified,
-                contentType: fileInfo.contentType,
-                content: content,
-                encoding: encoding, // 'text' or 'base64'
-                isText: fileInfo.isText,
-                email: email
-            }
+            message: "File retrieved successfully",
+            fileName: metadata.name,
+            content: content,
+            lastModified: metadata.server_modified || metadata.client_modified,
+            contentType: fileInfo.contentType,
         });
 
     } catch (err: any) {

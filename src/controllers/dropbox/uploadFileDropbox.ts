@@ -64,14 +64,8 @@ export default async function uploadFileDropbox(req: Request, res: Response): Pr
         // Send successful response
         res.status(200).json({
             success: true,
-            message: "File uploaded to Dropbox successfully",
-            data: {
-                fileName: response.result.name,
-                filePath: response.result.path_display,
-                size: response.result.size,
-                modified: response.result.server_modified,
-                email: email
-            }
+            message: "File uploaded successfully",
+            fileName: response.result.name
         });
 
     } catch (err: any) {
@@ -117,7 +111,6 @@ export default async function uploadFileDropbox(req: Request, res: Response): Pr
             res.status(500).json({
                 success: false,
                 error: "Failed to upload file to Dropbox",
-                message: err instanceof Error ? err.message : "Unknown error",
                 code: "INTERNAL_ERROR"
             });
         }

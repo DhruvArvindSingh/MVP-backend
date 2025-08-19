@@ -56,8 +56,7 @@ export default async function listAllDropbox(req: Request, res: Response): Promi
 
         res.status(200).json({
             success: true,
-            email: email,
-            dropboxFiles: filesObj,
+            files: filesObj,
             count: Object.keys(filesObj).length
         });
     } catch (err) {

@@ -18,13 +18,14 @@ import {
     listAllPostgres,
     uploadFilePostgres,
     getFilePostgres,
-    deleteFilePostgres
+    deleteFilePostgres,
+    listAllFirebase,
+    uploadFileFirebase,
+    getFileFirebase,
+    deleteFileFirebase
 } from "./controllers";
 import { dbReady } from "./database/index.js";
-import uploadFileFirebase from "./controllers/firebase/uploadFileFirebase";
-import listAllFirebase from "./controllers/firebase/listAllFirebase";
-import getFileFirebase from "./controllers/firebase/getFileFirebase";
-import deleteFileFirebase from "./controllers/firebase/deleteFileFirebase";
+
 
 dotenv.config();
 

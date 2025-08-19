@@ -14,6 +14,10 @@ import listAllPostgres from "./postgres/listAllPostgres";
 import uploadFilePostgres from "./postgres/uploadFilePostgres";
 import getFilePostgres from "./postgres/getFilePostgres";
 import deleteFilePostgres from "./postgres/deleteFilePostgres";
+import listAllFirebase from "./firebase/listAllFirebase";
+import uploadFileFirebase from "./firebase/uploadFileFirebase";
+import getFileFirebase from "./firebase/getFileFirebase";
+import deleteFileFirebase from "./firebase/deleteFileFirebase";
 
 export {
     checkAuth,
@@ -31,5 +35,9 @@ export {
     listAllPostgres,
     uploadFilePostgres,
     getFilePostgres,
-    deleteFilePostgres
+    deleteFilePostgres,
+    listAllFirebase,
+    uploadFileFirebase,
+    getFileFirebase,
+    deleteFileFirebase
 }
