@@ -8,11 +8,12 @@ dotenv.config();
 const BUCKET = process.env.S3_BUCKET as string;
 
 export default async function uploadFileS3(req: Request, res: Response) {
-    const { email, fileName, content } = req.body;
+    const { email, fileName, fileContent } = req.body;
 
     // Validate required fields
-    if (!email || !fileName || !content) {
+    if (!email || !fileName || !fileContent) {
         res.status(400).json({
+            success: false,
             error: "Missing required fields: email, fileName and content are required"
         });
         return;
@@ -26,21 +27,21 @@ export default async function uploadFileS3(req: Request, res: Response) {
         const params = {
             Bucket: BUCKET,
             Key: folderKey,
-            Body: content,
+            Body: fileContent,
             ContentType: 'text/plain'
         };
 
         await s3.send(new PutObjectCommand(params));
 
         res.status(200).json({
+            success: true,
             message: "File uploaded successfully",
-            fileName: fileName,
-            filePath: folderKey,
-            email: email
+            fileName: fileName
         });
     } catch (err) {
         console.error("Failed to save file to S3", err);
         res.status(500).json({
+            success: false,
             error: "Failed to upload file to S3"
         });
     }

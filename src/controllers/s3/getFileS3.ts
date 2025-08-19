@@ -13,6 +13,7 @@ export default async function getFileS3(req: Request, res: Response) {
     // Validate required fields
     if (!email || !fileName) {
         res.status(400).json({
+            success: false,
             error: "Missing required fields: email and fileName are required"
         });
         return;
@@ -47,6 +48,7 @@ export default async function getFileS3(req: Request, res: Response) {
         }
 
         res.status(200).json({
+            success: true,
             message: "File retrieved successfully",
             fileName: fileName,
             content: content,
@@ -56,6 +58,7 @@ export default async function getFileS3(req: Request, res: Response) {
     } catch (err) {
         console.error("Failed to get file from S3", err);
         res.status(404).json({
+            success: false,
             error: "File not found or failed to retrieve from S3"
         });
     }

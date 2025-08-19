@@ -9,7 +9,7 @@ dotenv.config();
 const BUCKET = process.env.S3_BUCKET;
 
 interface S3FileObject {
-    [key: string]: number;
+    [key: string]: string | null;
 }
 
 export default async function listAllS3(req: Request, res: Response): Promise<void> {
@@ -48,15 +48,14 @@ export default async function listAllS3(req: Request, res: Response): Promise<vo
                 // Remove the email prefix from the key for cleaner response
                 const fileName = file.Key.replace(`${email}/`, '');
                 if (fileName) { // Only include if there's a filename after removing prefix
-                    filesObj[fileName] = file.LastModified.getTime();
+                    filesObj[fileName] = file.LastModified?.toISOString();
                 }
             }
         });
 
         res.status(200).json({
             success: true,
-            email: email,
-            s3Files: filesObj,
+            files: filesObj,
             count: Object.keys(filesObj).length
         });
     } catch (err) {
@@ -64,7 +63,6 @@ export default async function listAllS3(req: Request, res: Response): Promise<vo
         res.status(500).json({
             success: false,
             error: "Failed to load files from S3",
-            message: err instanceof Error ? err.message : "Unknown error"
         });
     }
 };

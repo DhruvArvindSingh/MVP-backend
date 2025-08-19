@@ -13,6 +13,7 @@ export default async function deleteFileS3(req: Request, res: Response) {
     // Validate required fields
     if (!email || !fileName) {
         res.status(400).json({
+            success: false,
             error: "Missing required fields: email and fileName are required"
         });
         return;
@@ -31,9 +32,8 @@ export default async function deleteFileS3(req: Request, res: Response) {
         } catch (headErr: any) {
             if (headErr.name === 'NotFound' || headErr.$metadata?.httpStatusCode === 404) {
                 res.status(404).json({
+                    success: false,
                     error: "File not found in bucket",
-                    fileName: fileName,
-                    filePath: key
                 });
                 return;
             }
@@ -48,15 +48,15 @@ export default async function deleteFileS3(req: Request, res: Response) {
         }));
 
         res.status(200).json({
+            success: true,
             message: "File deleted successfully",
-            fileName: fileName,
-            filePath: key
+            fileName: fileName
         });
     } catch (err) {
         console.error("Failed to delete file from S3", err);
         res.status(500).json({
-            error: "Failed to delete file from S3",
-            details: err instanceof Error ? err.message : "Unknown error"
+            success: false,
+            error: "Failed to delete file from S3"
         });
     }
 }

@@ -21,6 +21,10 @@ import {
     deleteFilePostgres
 } from "./controllers";
 import { dbReady } from "./database/index.js";
+import uploadFileFirebase from "./controllers/firebase/uploadFileFirebase";
+import listAllFirebase from "./controllers/firebase/listAllFirebase";
+import getFileFirebase from "./controllers/firebase/getFileFirebase";
+import deleteFileFirebase from "./controllers/firebase/deleteFileFirebase";
 
 dotenv.config();
 
@@ -64,6 +68,12 @@ app.post("/api/v1/listAllPostgres", verify, listAllPostgres);
 app.post("/api/v1/uploadFilePostgres", verify, uploadFilePostgres);
 app.post("/api/v1/getFilePostgres", verify, getFilePostgres);
 app.post("/api/v1/deleteFilePostgres", verify, deleteFilePostgres);
+
+//firebase
+app.post("/api/v1/listAllFirebase", verify, listAllFirebase);
+app.post("/api/v1/uploadFileFirebase", verify, uploadFileFirebase);
+app.post("/api/v1/getFileFirebase", verify, getFileFirebase);
+app.post("/api/v1/deleteFileFirebase", verify, deleteFileFirebase);
 
 
 async function startServer() {
