@@ -1,0 +1,39 @@
+name: Re-Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  remote-ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: SSH into VM and run remote commands
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            echo "✅ Connected successfully to remote VM"
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            export PATH="$NVM_DIR/versions/node/v22.16.0/bin:$PATH"
+            
+            ls -al
+            if [ -d "MVP-backend" ]; then
+                echo "📦 MVP-backend directory exists. Pulling latest changes..."
+                cd MVP-backend
+                git pull origin master
+                npm install
+                npm run build
+                pm2 restart all
+            else
+                echo "❌ MVP-backend directory not found!"
+            fi
+          EOF
