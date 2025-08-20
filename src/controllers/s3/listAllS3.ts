@@ -43,12 +43,18 @@ export default async function listAllS3(req: Request, res: Response): Promise<vo
         const contents = data.Contents || [];
 
         const filesObj: S3FileObject = {};
+        const passwordProtectedFiles: S3FileObject = {};
         contents.forEach(file => {
             if (file.Key && file.LastModified) {
                 // Remove the email prefix from the key for cleaner response
-                const fileName = file.Key.replace(`${email}/`, '');
-                if (fileName) { // Only include if there's a filename after removing prefix
-                    filesObj[fileName] = file.LastModified?.toISOString();
+                let fileName = file.Key.replace(`${email}/`, '');
+                if (fileName.startsWith("__password_protected__")) {
+                    passwordProtectedFiles[fileName.replace("__password_protected__", "")] = file.LastModified?.toISOString();
+                }
+                else {
+                    if (fileName) { // Only include if there's a filename after removing prefix
+                        filesObj[fileName] = file.LastModified?.toISOString();
+                    }
                 }
             }
         });
@@ -56,7 +62,8 @@ export default async function listAllS3(req: Request, res: Response): Promise<vo
         res.status(200).json({
             success: true,
             files: filesObj,
-            count: Object.keys(filesObj).length
+            passwordProtectedFiles: passwordProtectedFiles,
+            count: Object.keys(filesObj).length + Object.keys(passwordProtectedFiles).length
         });
     } catch (err) {
         console.error("Failed to load files from S3", err);

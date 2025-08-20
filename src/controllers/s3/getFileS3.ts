@@ -8,7 +8,7 @@ dotenv.config();
 const BUCKET = process.env.S3_BUCKET as string;
 
 export default async function getFileS3(req: Request, res: Response) {
-    const { email, fileName } = req.body;
+    const { email, fileName, isPasswordProtected } = req.body;
 
     // Validate required fields
     if (!email || !fileName) {
@@ -21,7 +21,8 @@ export default async function getFileS3(req: Request, res: Response) {
 
     try {
         // Create the same folder structure as used in upload
-        const key = `${email}/${fileName}`;
+        const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
+        const key = `${email}/${Name}`;
 
         const command = new GetObjectCommand({
             Bucket: BUCKET,
@@ -51,6 +52,7 @@ export default async function getFileS3(req: Request, res: Response) {
             success: true,
             message: "File retrieved successfully",
             fileName: fileName,
+            isPasswordProtected: isPasswordProtected,
             content: content,
             lastModified: response.LastModified,
             contentType: response.ContentType

@@ -6,7 +6,7 @@ dotenv.config();
 
 export default async function uploadFileDropbox(req: Request, res: Response): Promise<void> {
     try {
-        const { email, fileName, content } = req.body;
+        const { email, fileName, content, isPasswordProtected } = req.body;
 
         // Validate required parameters
         if (!email || typeof email !== 'string') {
@@ -39,7 +39,8 @@ export default async function uploadFileDropbox(req: Request, res: Response): Pr
         console.log("Content length:", content.length, "characters");
 
         // Use email folder path structure for backend organization
-        const filePath = `/${email}/${fileName}`;
+        const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
+        const filePath = `/${email}/${Name}`;
         console.log("Full file path:", filePath);
 
         // Convert string content to Buffer for Dropbox API

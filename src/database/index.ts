@@ -38,6 +38,7 @@ async function setupDatabase() {
             user_email VARCHAR(255) NOT NULL,
             file_name VARCHAR(255) NOT NULL,
             file_content TEXT NOT NULL,
+            is_password_protected BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_user_email

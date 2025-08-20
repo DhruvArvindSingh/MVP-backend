@@ -8,7 +8,7 @@ dotenv.config();
 const BUCKET = process.env.S3_BUCKET as string;
 
 export default async function uploadFileS3(req: Request, res: Response) {
-    const { email, fileName, fileContent } = req.body;
+    const { email, fileName, fileContent, isPasswordProtected } = req.body;
 
     // Validate required fields
     if (!email || !fileName || !fileContent) {
@@ -18,17 +18,26 @@ export default async function uploadFileS3(req: Request, res: Response) {
         });
         return;
     }
+    if (fileName.startsWith("__password_protected__")) {
+        res.status(400).json({
+            success: false,
+            error: "File name cannot start with '__password_protected__'"
+        });
+        return;
+    }
 
     try {
+
         // Create folder structure: email/fileName
         // S3 will automatically create the "folder" when we upload with this key
-        const folderKey = `${email}/${fileName}`;
+        const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
+        const folderKey = `${email}/${Name}`;
 
         const params = {
             Bucket: BUCKET,
             Key: folderKey,
             Body: fileContent,
-            ContentType: 'text/plain'
+            ContentType: 'text/plain',
         };
 
         await s3.send(new PutObjectCommand(params));

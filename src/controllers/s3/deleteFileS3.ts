@@ -8,7 +8,7 @@ dotenv.config();
 const BUCKET = process.env.S3_BUCKET as string;
 
 export default async function deleteFileS3(req: Request, res: Response) {
-    const { email, fileName } = req.body;
+    const { email, fileName, isPasswordProtected } = req.body;
 
     // Validate required fields
     if (!email || !fileName) {
@@ -21,7 +21,8 @@ export default async function deleteFileS3(req: Request, res: Response) {
 
     try {
         // Create the same folder structure as used in upload/get
-        const key = `${email}/${fileName}`;
+        const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
+        const key = `${email}/${Name}`;
 
         // Check if file exists before attempting to delete
         try {
@@ -50,7 +51,8 @@ export default async function deleteFileS3(req: Request, res: Response) {
         res.status(200).json({
             success: true,
             message: "File deleted successfully",
-            fileName: fileName
+            fileName: fileName,
+            isPasswordProtected: isPasswordProtected
         });
     } catch (err) {
         console.error("Failed to delete file from S3", err);

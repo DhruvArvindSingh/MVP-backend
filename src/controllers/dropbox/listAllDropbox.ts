@@ -48,15 +48,22 @@ export default async function listAllDropbox(req: Request, res: Response): Promi
 
         // Convert Dropbox files to the expected format
         const filesObj: DropboxFileObject = {};
+        const passwordProtectedFiles: DropboxFileObject = {};
         files.forEach((file: any) => {
             if (file['.tag'] === 'file' && file.name && file.client_modified) {
-                filesObj[file.name] = new Date(file.client_modified).getTime();
+                if (file.name.startsWith("__password_protected__")) {
+                    passwordProtectedFiles[file.name.replace("__password_protected__", "")] = new Date(file.client_modified).getTime();
+                }
+                else {
+                    filesObj[file.name] = new Date(file.client_modified).getTime();
+                }
             }
         });
 
         res.status(200).json({
             success: true,
             files: filesObj,
+            passwordProtectedFiles: passwordProtectedFiles,
             count: Object.keys(filesObj).length
         });
     } catch (err) {

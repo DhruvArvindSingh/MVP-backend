@@ -6,7 +6,7 @@ dotenv.config();
 
 export default async function deleteFileDropbox(req: Request, res: Response): Promise<void> {
     try {
-        const { email, fileName } = req.body;
+        const { email, fileName, isPasswordProtected } = req.body;
 
         // Validate required parameters
         if (!email || typeof email !== 'string') {
@@ -30,7 +30,8 @@ export default async function deleteFileDropbox(req: Request, res: Response): Pr
         console.log("Deleting file:", fileName);
 
         // Use email folder path structure for backend organization
-        const filePath = `/${email}/${fileName}`;
+        const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
+        const filePath = `/${email}/${Name}`;
         console.log("Full file path:", filePath);
 
         await dropbox.filesDeleteV2({ path: filePath });
@@ -43,7 +44,8 @@ export default async function deleteFileDropbox(req: Request, res: Response): Pr
         res.status(200).json({
             success: true,
             message: "File deleted successfully",
-            fileName: fileName
+            fileName: fileName,
+            isPasswordProtected: isPasswordProtected
         });
 
     } catch (err: any) {

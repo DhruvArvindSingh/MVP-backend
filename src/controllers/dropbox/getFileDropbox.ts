@@ -7,7 +7,7 @@ dotenv.config();
 
 export default async function getFileDropbox(req: Request, res: Response): Promise<void> {
     try {
-        const { email, fileName } = req.body;
+        const { email, fileName, isPasswordProtected } = req.body;
 
         // Validate required parameters
         if (!email || typeof email !== 'string') {
@@ -31,7 +31,8 @@ export default async function getFileDropbox(req: Request, res: Response): Promi
         console.log("Attempting to download file:", fileName);
 
         // Use email folder path structure for backend
-        const filePath = `/${email}/${fileName}`;
+        const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
+        const filePath = `/${email}/${Name}`;
         console.log("Full file path:", filePath);
 
         // Wrap Dropbox API call with retry logic
@@ -149,6 +150,7 @@ export default async function getFileDropbox(req: Request, res: Response): Promi
             success: true,
             message: "File retrieved successfully",
             fileName: metadata.name,
+            isPasswordProtected: isPasswordProtected,
             content: content,
             lastModified: metadata.server_modified || metadata.client_modified,
             contentType: fileInfo.contentType,
