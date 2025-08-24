@@ -44,6 +44,11 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
+app.use(express.static("public"));
+
+// Set the view engine to ejs
+app.set("view engine", "ejs");
+app.set("views", "src/views");
 
 
 //dropbox
@@ -56,6 +61,16 @@ app.post("/api/v1/deleteFileDropbox", verify, deleteFileDropbox);
 app.post("/api/v1/signup", hash_pass, signupPost);
 app.post("/api/v1/signin", hash_pass, signinPost);
 app.post("/api/v1/checkAuth", checkAuth);
+
+// New login and home routes
+app.get("/login", (req: Request, res: Response) => {
+    res.render("login");
+});
+
+app.get("/home", (req: Request, res: Response) => {
+    res.render("home");
+});
+
 
 //s3
 app.post("/api/v1/listAllS3", verify, listAllS3);
