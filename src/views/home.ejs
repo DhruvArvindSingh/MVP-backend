@@ -4,14 +4,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>File Manager Dashboard</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-    <div>
-        <h1>Welcome to the Home Page!</h1>
+    <div class="home-container">
+        <div class="header">
+            <h1 class="home-title">File Manager</h1>
+            <button onclick="logout()" class="logout-button">Logout</button>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-button active" onclick="openList('S3')">
+                    AWS S3
+                </button>
+                <button class="tab-button" onclick="openList('Postgres')">
+                    PostgreSQL
+                </button>
+                <button class="tab-button" onclick="openList('Firebase')">
+                    Firebase
+                </button>
+            </div>
+            <div id="file-list-container" class="file-list-container"></div>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuthAndLoadFiles();
+        });
+
+        async function checkAuthAndLoadFiles() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                // No token found, redirect to login
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                // Verify token with backend
+                const response = await fetch('/api/v1/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.authenticated) {
+                    // Token is valid, load the S3 files by default
+                    openList('S3');
+                } else {
+                    // Token is invalid, remove it and redirect to login
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error verifying token:', error);
+                // On error, remove token and redirect to login
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            }
+        }
+
+        async function openList(storageType) {
+            // Set active tab
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                if (button.textContent === storageType) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            const fileListContainer = document.getElementById('file-list-container');
+            fileListContainer.innerHTML = '<div class="loading-message">Loading files...</div>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`/api/v1/listAll${storageType}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    renderFileList(data, fileListContainer);
+                } else {
+                    fileListContainer.innerHTML = `<div class="error-message">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                fileListContainer.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
+            }
+        }
+
+        function renderFileList(data, container) {
+            if (!data || (!data.files && !data.passwordProtectedFiles)) {
+                container.innerHTML = '<div class="no-files-message">No files found. Upload some files to get started!</div>';
+                return;
+            }
+
+            let html = '';
+
+            // Render regular files
+            if (data.files && Object.keys(data.files).length > 0) {
+                Object.entries(data.files).forEach(([fileName, lastModified]) => {
+                    html += `
+                        <div class="file-item">
+                            <div class="file-info">
+                                <span class="file-name">${fileName}</span>
+                            </div>
+                            <div class="file-meta">
+                                <span class="file-modified">${new Date(lastModified).toLocaleString()}</span>
+                                <div class="file-actions">
+                                    <button class="action-button edit-button" onclick="editFile('${fileName}', '${getCurrentStorageType()}')">Edit</button>
+                                    <button class="action-button delete-button" onclick="deleteFile('${fileName}', '${getCurrentStorageType()}')">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Render password protected files
+            if (data.passwordProtectedFiles && Object.keys(data.passwordProtectedFiles).length > 0) {
+                Object.entries(data.passwordProtectedFiles).forEach(([fileName, lastModified]) => {
+                    html += `
+                        <div class="file-item">
+                            <div class="file-info">
+                                <span class="file-name">${fileName}</span>
+                                <span class="shield-icon">🛡️</span>
+                            </div>
+                            <div class="file-meta">
+                                <span class="file-modified">${new Date(lastModified).toLocaleString()}</span>
+                                <div class="file-actions">
+                                    <button class="action-button edit-button" onclick="editFile('__password_protected__${fileName}', '${getCurrentStorageType()}')">Edit</button>
+                                    <button class="action-button delete-button" onclick="deleteFile('__password_protected__${fileName}', '${getCurrentStorageType()}')">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (html === '') {
+                container.innerHTML = '<div class="no-files-message">No files found. Upload some files to get started!</div>';
+            } else {
+                container.innerHTML = html;
+            }
+        }
+
+        function getCurrentStorageType() {
+            const activeTab = document.querySelector('.tab-button.active');
+            return activeTab ? activeTab.textContent : 'S3';
+        }
+
+        async function editFile(fileName, storageType) {
+            // For now, just show a styled alert. You can implement actual edit functionality later
+            showNotification(`Edit functionality for "${fileName}" in ${storageType} is coming soon!`, 'info');
+        }
+
+        async function deleteFile(fileName, storageType) {
+            if (!confirm(`⚠️ Are you sure you want to permanently delete "${fileName}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            // Show loading state
+            const deleteButton = event.target;
+            const originalText = deleteButton.textContent;
+            deleteButton.textContent = 'Deleting...';
+            deleteButton.disabled = true;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`/api/v1/deleteFile${storageType}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token,
+                        fileName
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showNotification(`✅ "${fileName}" deleted successfully!`, 'success');
+                    // Refresh the current tab
+                    openList(storageType);
+                } else {
+                    showNotification(`❌ Error deleting file: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showNotification(`❌ Error deleting file: ${error.message}`, 'error');
+            } finally {
+                // Restore button state
+                deleteButton.textContent = originalText;
+                deleteButton.disabled = false;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: inherit; font-size: 1.2rem; cursor: pointer; margin-left: 1rem;">×</button>
+            `;
+
+            // Add notification styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                display: flex;
+                align-items: center;
+                max-width: 400px;
+                animation: slideIn 0.3s ease;
+                ${type === 'success' ? 'background: linear-gradient(135deg, #27ae60, #2ecc71);' : ''}
+                ${type === 'error' ? 'background: linear-gradient(135deg, #e74c3c, #c0392b);' : ''}
+                ${type === 'info' ? 'background: linear-gradient(135deg, #3498db, #2980b9);' : ''}
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+    </script>
 </body>
 
 </html>

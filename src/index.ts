@@ -60,14 +60,15 @@ app.post("/api/v1/deleteFileDropbox", verify, deleteFileDropbox);
 //auth
 app.post("/api/v1/signup", hash_pass, signupPost);
 app.post("/api/v1/signin", hash_pass, signinPost);
+app.post("/api/v1/verify", checkAuth);
 app.post("/api/v1/checkAuth", checkAuth);
 
-// New login and home routes
+// GET routes for pages
 app.get("/login", (req: Request, res: Response) => {
     res.render("login");
 });
 
-app.get("/home", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
     res.render("home");
 });
 
