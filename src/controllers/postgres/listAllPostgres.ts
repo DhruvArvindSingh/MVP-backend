@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import client from "../../database/index.js";
+import { getPostgresClient, postgresDbReady } from "../../database/postgresClient.js";
 
 export default async function listAllPostgres(req: Request, res: Response) {
     const { email } = req.body;
@@ -10,18 +10,41 @@ export default async function listAllPostgres(req: Request, res: Response) {
         });
         return;
     }
+
     try {
-        const files = await client!.query("SELECT file_name, updated_at FROM files WHERE user_email = $1", [email]);
-        const passwordProtectedFiles: Record<string, string> = {};
-        const result = files.rows.reduce((acc: Record<string, string>, row) => {
-            if (row.file_name.startsWith("__password_protected__")) {
-                passwordProtectedFiles[row.file_name.replace("__password_protected__", "")] = row.updated_at;
+        // Wait for database connection
+        await postgresDbReady;
+        const prisma = getPostgresClient();
+
+        if (!prisma) {
+            res.status(500).json({
+                success: false,
+                error: "Database not available"
+            });
+            return;
+        }
+
+        // Get all files for the user using Prisma
+        const files = await prisma.file.findMany({
+            where: {
+                userEmail: email
+            },
+            select: {
+                fileName: true,
+                updatedAt: true
             }
-            else {
-                acc[row.file_name] = row.updated_at;
+        });
+
+        const passwordProtectedFiles: Record<string, string> = {};
+        const result = files.reduce((acc: Record<string, string>, file) => {
+            if (file.fileName.startsWith("__password_protected__")) {
+                passwordProtectedFiles[file.fileName.replace("__password_protected__", "")] = file.updatedAt.toISOString();
+            } else {
+                acc[file.fileName] = file.updatedAt.toISOString();
             }
             return acc;
         }, {});
+
         res.status(200).json({
             success: true,
             files: result,

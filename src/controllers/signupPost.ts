@@ -1,5 +1,6 @@
-import client, { dbConnected } from "../database/index.js";
-import { Request, Response, NextFunction } from "express";
+import { getPostgresClient, postgresDbReady } from "../database/postgresClient.js";
+import { Request, Response } from "express";
+import { PrismaClientKnownRequestError } from "../generated/postgres/runtime/library.js";
 
 export default async function signup_post(req: Request, res: Response): Promise<void> {
     console.log("POST /signup received");
@@ -7,8 +8,12 @@ export default async function signup_post(req: Request, res: Response): Promise<
     const { email, password } = req.body;
 
     try {
+        // Wait for database connection
+        await postgresDbReady;
+        const prisma = getPostgresClient();
+
         // Check if database is available
-        if (!dbConnected || !client) {
+        if (!prisma) {
             res.status(503).json({
                 success: false,
                 error: "Database service unavailable. Please contact administrator.",
@@ -27,27 +32,29 @@ export default async function signup_post(req: Request, res: Response): Promise<
             return;
         }
 
-        // Insert user into the database
-        const user = await client.query(
-            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
-            [email, password]
-        );
+        // Insert user into the database using Prisma
+        const user = await prisma.user.create({
+            data: {
+                email,
+                password
+            }
+        });
 
-        console.log("Signup successful for:", user.rows[0]);
+        console.log("Signup successful for:", user);
 
         res.status(200).json({
             success: true,
             message: "Signup successful",
             data: {
                 email: email,
-                userId: user.rows[0].id
+                userId: user.id
             }
         });
     } catch (e: any) {
         console.error("An error occurred during signup:", e);
 
-        // Handle unique constraint violation (duplicate email)
-        if (e.code === '23505') {
+        // Handle unique constraint violation (duplicate email) using Prisma error
+        if (e instanceof PrismaClientKnownRequestError && e.code === 'P2002') {
             res.status(409).json({
                 success: false,
                 error: "Email already exists. Please use a different email.",

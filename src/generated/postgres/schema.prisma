@@ -1,0 +1,40 @@
+// This is your Prisma schema file for PostgreSQL
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/postgres"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_DATABASE_LINK")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relationships
+  files File[]
+
+  @@map("users")
+}
+
+model File {
+  id                  Int      @id @default(autoincrement())
+  userEmail           String   @map("user_email") @db.VarChar(255)
+  fileName            String   @map("file_name") @db.VarChar(255)
+  fileContent         String   @map("file_content") @db.Text
+  isPasswordProtected Boolean  @default(false) @map("is_password_protected")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relationships
+  user User @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+
+  @@map("files")
+}

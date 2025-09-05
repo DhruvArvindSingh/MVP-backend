@@ -18,6 +18,10 @@ import listAllFirebase from "./firebase/listAllFirebase";
 import uploadFileFirebase from "./firebase/uploadFileFirebase";
 import getFileFirebase from "./firebase/getFileFirebase";
 import deleteFileFirebase from "./firebase/deleteFileFirebase";
+import listAllMongo from "./mongo/listAllMongo";
+import uploadFileMongo from "./mongo/uploadFileMongo";
+import getFileMongo from "./mongo/getFileMongo";
+import deleteFileMongo from "./mongo/deleteFileMongo";
 
 export {
     checkAuth,
@@ -39,5 +43,9 @@ export {
     listAllFirebase,
     uploadFileFirebase,
     getFileFirebase,
-    deleteFileFirebase
+    deleteFileFirebase,
+    listAllMongo,
+    uploadFileMongo,
+    getFileMongo,
+    deleteFileMongo
 }

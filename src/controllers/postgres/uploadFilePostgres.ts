@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import client from "../../database/index.js";
+import { getPostgresClient, postgresDbReady } from "../../database/postgresClient.js";
 
 export default async function uploadFilePostgres(req: Request, res: Response) {
     const { email, fileName, fileContent, isPasswordProtected } = req.body;
@@ -10,13 +10,37 @@ export default async function uploadFilePostgres(req: Request, res: Response) {
         });
         return;
     }
+
     try {
+        // Wait for database connection
+        await postgresDbReady;
+        const prisma = getPostgresClient();
+
+        if (!prisma) {
+            res.status(500).json({
+                success: false,
+                error: "Database not available"
+            });
+            return;
+        }
+
         const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
-        const files = await client!.query("INSERT INTO files (user_email, file_name, file_content) VALUES ($1, $2, $3)", [email, Name, fileContent]);
+
+        // Create file using Prisma
+        const file = await prisma.file.create({
+            data: {
+                userEmail: email,
+                fileName: Name,
+                fileContent: fileContent,
+                isPasswordProtected: isPasswordProtected || false
+            }
+        });
+
         res.status(200).json({
             success: true,
             message: "File uploaded successfully",
-            fileName: fileName
+            fileName: fileName,
+            fileId: file.id
         });
     } catch (error) {
         console.error("Failed to upload file", error);

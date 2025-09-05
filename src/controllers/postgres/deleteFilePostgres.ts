@@ -1,5 +1,5 @@
-import { Request, response, Response } from "express";
-import client from "../../database/index.js";
+import { Request, Response } from "express";
+import { getPostgresClient, postgresDbReady } from "../../database/postgresClient.js";
 
 export default async function deleteFilePostgres(req: Request, res: Response) {
     const { email, fileName, isPasswordProtected } = req.body;
@@ -11,10 +11,37 @@ export default async function deleteFilePostgres(req: Request, res: Response) {
         return;
     }
 
-
     try {
+        // Wait for database connection
+        await postgresDbReady;
+        const prisma = getPostgresClient();
+
+        if (!prisma) {
+            res.status(500).json({
+                success: false,
+                error: "Database not available"
+            });
+            return;
+        }
+
         const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
-        await client!.query("DELETE FROM files WHERE user_email = $1 AND file_name = $2", [email, Name]);
+
+        // Delete file using Prisma
+        const deletedFile = await prisma.file.deleteMany({
+            where: {
+                userEmail: email,
+                fileName: Name
+            }
+        });
+
+        if (deletedFile.count === 0) {
+            res.status(404).json({
+                success: false,
+                error: "File not found"
+            });
+            return;
+        }
+
         res.status(200).json({
             success: true,
             message: "File deleted successfully",

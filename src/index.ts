@@ -22,9 +22,15 @@ import {
     listAllFirebase,
     uploadFileFirebase,
     getFileFirebase,
-    deleteFileFirebase
+    deleteFileFirebase,
+    listAllMongo,
+    uploadFileMongo,
+    getFileMongo,
+    deleteFileMongo
 } from "./controllers";
 import { dbReady } from "./database/index.js";
+import { postgresDbReady } from "./database/postgresClient.js";
+import { nativeMongoDbReady } from "./database/nativeMongoClient.js";
 
 
 dotenv.config();
@@ -92,17 +98,30 @@ app.post("/api/v1/uploadFileFirebase", verify, uploadFileFirebase);
 app.post("/api/v1/getFileFirebase", verify, getFileFirebase);
 app.post("/api/v1/deleteFileFirebase", verify, deleteFileFirebase);
 
+//mongodb
+app.post("/api/v1/listAllMongo", verify, listAllMongo);
+app.post("/api/v1/uploadFileMongo", verify, uploadFileMongo);
+app.post("/api/v1/getFileMongo", verify, getFileMongo);
+app.post("/api/v1/deleteFileMongo", verify, deleteFileMongo);
+
 
 async function startServer() {
     try {
-        await dbReady;
-        console.log("📋 Database schema verification completed");
+        console.log("🚀 Starting server...");
 
+        // Start the server immediately - database connections will happen in background
         app.listen(PORT, () => {
             console.log(`[server]: Server is running at http://localhost:${PORT}`);
+            console.log("🔗 Available database endpoints:");
+            console.log("  - PostgreSQL (Prisma): /api/v1/*Postgres");
+            console.log("  - MongoDB (Native): /api/v1/*Mongo");
+            console.log("  - Firebase: /api/v1/*Firebase");
+            console.log("  - AWS S3: /api/v1/*S3");
+            console.log("  - Dropbox: /api/v1/*Dropbox");
+            console.log("📋 Database connections are initializing in background...");
         });
     } catch (error) {
-        console.error("❌ Failed to initialize database connection:", error);
+        console.error("❌ Failed to start server:", error);
         process.exit(1);
     }
 }

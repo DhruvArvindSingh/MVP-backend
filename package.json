@@ -5,8 +5,16 @@
   "scripts": {
     "dev": "tsc --watch",
     "start:dev": "nodemon dist/index.js",
-    "build": "tsc -b",
-    "start:prod": "node dist/index.js"
+    "build": "tsc -b && cp -r src/generated dist/",
+    "start:prod": "node dist/index.js",
+    "db:generate": "prisma generate --schema=./prisma/postgres.prisma && prisma generate --schema=./prisma/mongo.prisma && npm run copy-generated",
+    "copy-generated": "mkdir -p dist/generated && cp -r src/generated/* dist/generated/ 2>/dev/null || true",
+    "db:generate:postgres": "prisma generate --schema=./prisma/postgres.prisma",
+    "db:generate:mongo": "prisma generate --schema=./prisma/mongo.prisma",
+    "db:push:postgres": "prisma db push --schema=./prisma/postgres.prisma",
+    "db:push:mongo": "prisma db push --schema=./prisma/mongo.prisma",
+    "db:studio:postgres": "prisma studio --schema=./prisma/postgres.prisma",
+    "db:studio:mongo": "prisma studio --schema=./prisma/mongo.prisma"
   },
   "keywords": [],
   "author": "",
@@ -15,11 +23,13 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.844.0",
     "@aws-sdk/s3-request-presigner": "^3.844.0",
+    "@prisma/client": "^6.0.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.23",
     "@types/isomorphic-fetch": "^0.0.36",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongodb": "^4.0.6",
     "@types/node": "^22.16.2",
     "@types/pg": "^8.15.4",
     "cookie-parser": "^1.4.7",
@@ -31,8 +41,10 @@
     "firebase": "^12.1.0",
     "isomorphic-fetch": "^3.0.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.19.0",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
+    "prisma": "^6.0.0",
     "typescript": "^5.8.3"
   }
 }
