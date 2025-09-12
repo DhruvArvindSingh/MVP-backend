@@ -8,6 +8,7 @@ import uploadFileDropbox from "./dropbox/uploadFileDropbox";
 import deleteFileS3 from "./s3/deleteFileS3";
 import deleteFileDropbox from "./dropbox/deleteFileDropbox";
 import uploadLogo from "./uploadLogo";
+import createBarCode from "./createBarCode";
 import signupPost from "./signupPost";
 import signinPost from "./signinPost";
 import listAllPostgres from "./postgres/listAllPostgres";
@@ -22,6 +23,10 @@ import listAllMongo from "./mongo/listAllMongo";
 import uploadFileMongo from "./mongo/uploadFileMongo";
 import getFileMongo from "./mongo/getFileMongo";
 import deleteFileMongo from "./mongo/deleteFileMongo";
+import listAllNeo4j from "./neo4j/listAllNeo4j";
+import uploadFileNeo4j from "./neo4j/uploadFileNeo4j";
+import getFileNeo4j from "./neo4j/getFileNeo4j";
+import deleteFileNeo4j from "./neo4j/deleteFileNeo4j";
 
 export {
     checkAuth,
@@ -34,6 +39,7 @@ export {
     deleteFileS3,
     deleteFileDropbox,
     uploadLogo,
+    createBarCode,
     signupPost,
     signinPost,
     listAllPostgres,
@@ -47,5 +53,9 @@ export {
     listAllMongo,
     uploadFileMongo,
     getFileMongo,
-    deleteFileMongo
+    deleteFileMongo,
+    listAllNeo4j,
+    uploadFileNeo4j,
+    getFileNeo4j,
+    deleteFileNeo4j
 }

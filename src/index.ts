@@ -14,7 +14,7 @@ import {
     signupPost,
     signinPost,
     uploadFileS3,
-    getFileS3, deleteFileS3, uploadLogo,
+    getFileS3, deleteFileS3, uploadLogo, createBarCode,
     listAllPostgres,
     uploadFilePostgres,
     getFilePostgres,
@@ -26,11 +26,17 @@ import {
     listAllMongo,
     uploadFileMongo,
     getFileMongo,
-    deleteFileMongo
+    deleteFileMongo,
+    listAllNeo4j,
+    uploadFileNeo4j,
+    getFileNeo4j,
+    deleteFileNeo4j
 } from "./controllers";
+
 import { dbReady } from "./database/index.js";
 import { postgresDbReady } from "./database/postgresClient.js";
 import { nativeMongoDbReady } from "./database/nativeMongoClient.js";
+import client from "./neo4j/index.js";
 
 
 dotenv.config();
@@ -85,6 +91,7 @@ app.post("/api/v1/uploadFileS3", verify, uploadFileS3);
 app.post("/api/v1/getFileS3", verify, getFileS3);
 app.post("/api/v1/deleteFileS3", verify, deleteFileS3);
 app.post("/api/v1/uploadLogo", verify, uploadLogo);
+app.post("/api/v1/createBarCode", verify, createBarCode);
 
 //postgres
 app.post("/api/v1/listAllPostgres", verify, listAllPostgres);
@@ -104,6 +111,12 @@ app.post("/api/v1/uploadFileMongo", verify, uploadFileMongo);
 app.post("/api/v1/getFileMongo", verify, getFileMongo);
 app.post("/api/v1/deleteFileMongo", verify, deleteFileMongo);
 
+//neo4j
+app.post("/api/v1/listAllNeo4j", verify, listAllNeo4j);
+app.post("/api/v1/uploadFileNeo4j", verify, uploadFileNeo4j);
+app.post("/api/v1/getFileNeo4j", verify, getFileNeo4j);
+app.post("/api/v1/deleteFileNeo4j", verify, deleteFileNeo4j);
+
 
 async function startServer() {
     try {
@@ -116,6 +129,7 @@ async function startServer() {
             console.log("  - PostgreSQL (Prisma): /api/v1/*Postgres");
             console.log("  - MongoDB (Native): /api/v1/*Mongo");
             console.log("  - Firebase: /api/v1/*Firebase");
+            console.log("  - Neo4j: /api/v1/*Neo4j");
             console.log("  - AWS S3: /api/v1/*S3");
             console.log("  - Dropbox: /api/v1/*Dropbox");
             console.log("📋 Database connections are initializing in background...");
