@@ -1,6 +1,6 @@
 # EC2 Deployment Guide
 
-This document provides instructions for deploying the application on an AWS EC2 instance. The steps are based on the `ec2.sh` and `setup_postgres.sh` scripts.
+This document provides instructions for deploying the application on an AWS or GCP VM instance. the VM's OS should Ubuntu or Debian
 
 ## 1. Initial Server Setup
 
@@ -15,6 +15,8 @@ sudo apt update
 
 ### 1.2. Install git
 
+If the VM is ran on the Google provider then the git is not preinstalled.In AWS, git comes preinstalled so ran the below command it you are using GCP
+
 ```bash
 sudo apt install git
 ```
@@ -26,13 +28,15 @@ git clone https://github.com/DhruvArvindSingh/MVP-backend
 cd MVP-backend
 ```
 
-## 2.1 Setup Project
+### 1.3. Install git
 
-Add all the environment variables in .env file
+Install npm/node version 22.16.0 via nvm 
 
 ```bash
-nano .env
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && source ~/.bashrc && nvm list-remote && nvm install v22.16.0
 ```
+
+## 2.1 Setup Project
 
 The `ec2.sh` script automates the project setup.
 
@@ -41,9 +45,6 @@ First, make the script executable:
 chmod +x ec2.sh
 ```
 Then, run the script. You might need `sudo` if you are not running as root.
-```bash
-./ec2.sh
-```
 
 This script will:
 1.  Install nodejs and npm from nvm
@@ -52,18 +53,22 @@ This script will:
 4.  Allow executable access to start_postgres.sh
 5.  Build the project
 
-
-## 2.2 Setup Database
-
-The `start_postgres.sh` script automates the database setup.
-
-Once more, make the script executable:
 ```bash
-chmod +x start_postgres.sh
+./ec2.sh
 ```
-Then, run the script. You might need `sudo` if you are not running as root.
+
+## 2.2 Setup Postgres Database
+
+**Note:** You can skip this step if you are using external Postgres database
+
+**Note:** You can modify the script to change the user, password, and database name. default link is `postgresql://myuser:mypassword@localhost:5432/mydatabase`
+
+If you want to run the postgres database inside the VM then run the `setup_postgres.sh` bash script. 
+The `setup_postgres.sh` script automates the postgres database setup.
+
+You might need `sudo` if you are not running as root.
 ```bash
-./setup__postgres.sh
+./setup_postgres.sh
 ```
 
 This script will:
@@ -72,8 +77,43 @@ This script will:
 3.  Create a database named `mydatabase` owned by `myuser`.
 4.  Grant all privileges on the database to the user.
 5.  Test the connection to the database.
+6.  You will need to upgrade the `POSTGRES_DATABASE_LINK` inside the .env file with the following link : `postgresql://myuser:mypassword@localhost:5432/mydatabase`
 
-**Note:** You can modify the script to change the user, password, and database name.
+
+## 2.3 Setup MongoDB Database
+
+**Note:** You can skip this step if you are using external MongoDB database
+
+**Note:** You can modify the script to change the user, password, and database name. default link is `mongodb://username:password@localhost:27017/database_name?authSource=admin`
+
+
+If you want to run the mongodb database inside the VM then run the `setup_mongodb.sh` bash script. 
+The `setup_mongodb.sh` script automates the mongodb database setup.
+
+You might need `sudo` if you are not running as root.
+```bash
+./setup_mongodb.sh
+```
+
+This script will:
+1.  Install MongoDB (series 7.0 or 6.0) on Ubuntu or Debian 12 (bookworm).
+2.  Configure mongod with authentication enabled, bound to 127.0.0.1 on port 27017.
+3.  Enable and start the mongod service.
+4.  Create an admin user (admin / StrongAdminP@ssw0rd by default) with full root privileges.
+5.  Create an application database (database_name) and an application user (username / password) with readWrite privileges on that database.
+6.  Verify connectivity by testing a ping command against the application database using the new user credentials.
+7. You will need to upgrade the `MONGO_DATABASE_LINK` inside the .env file with the following link: : `mongodb://username:password@localhost:27017/database_name?authSource=admin`
+
+## 2.3 Create and Push the prisma schema in Postgres and MongoDB Database
+
+```bash
+./push_schema.sh
+```
+
+This script will:
+1.  Generate the generate folder from the .prisma file
+2.  Pushes the table schema in the postgres database
+3.  Pushes the table schema in the mongodb database
 
 
 ## 3. Start the Application
@@ -112,7 +152,9 @@ Create nginx.conf in your-domain.com:
 sudo nano /etc/nginx/sites-available/your-domain.fun
 ```
 
-Paste this configuration( Replace your-domain.com with your domain):
+**Note:** You need to change the `your-domain.com` in the below configuration to you own domain name which is pointing to your VM's external IP.
+
+Paste this configuration
 
 ```bash
 server {
@@ -154,6 +196,9 @@ sudo apt install certbot python3-certbot-nginx -y
 ```
 
 Get SSL Certificate
+
+**Note:** You need to change the `your-domain.com` in the below configuration to you own domain name which is pointing to your VM's external IP.
+
 ```bash
 sudo certbot --nginx -d your-domain.com
 ```
