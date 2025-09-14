@@ -2,6 +2,10 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh && curl
 
 chmod +x setup_postgres.sh
 
+chmod +x setup_mongodb.sh
+``
+chmod +x push_schema.sh
+
 sudo apt update
 
 npm i -g pm2
