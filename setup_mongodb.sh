@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Ubuntu-only: Install and start MongoDB, enable auth, create users, verify URI.
+# Ubuntu & Debian 12 (bookworm): Install and start MongoDB, enable auth,
+# create users, and verify the URI.
 # Requires: sudo privileges and internet access.
-# Tested on Ubuntu 20.04/22.04/24.04 families.
 
 set -euo pipefail
 
 # ========= CONFIGURE THESE VALUES =========
-MONGO_VERSION="7.0"            # MongoDB series: e.g., 7.0 or 6.0
+MONGO_VERSION="7.0"            # MongoDB series: 7.0 or 6.0
 DB_NAME="database_name"
 DB_USER="username"
 DB_PASS="password"
@@ -17,38 +17,63 @@ PORT="27017"
 # =========================================
 
 if [ ! -f /etc/os-release ]; then
-  echo "[ERROR] This script requires Ubuntu (os-release missing)."
+  echo "[ERROR] This script requires Ubuntu or Debian (os-release missing)."
   exit 1
 fi
 
 . /etc/os-release
-if [ "${ID}" != "ubuntu" ]; then
-  echo "[ERROR] Detected ${PRETTY_NAME:-$ID}. This script is for Ubuntu only."
+ID="${ID:-}"
+VERSION_CODENAME="${VERSION_CODENAME:-}"
+PRETTY="${PRETTY_NAME:-$ID}"
+
+if [ "$ID" != "ubuntu" ] && [ "$ID" != "debian" ]; then
+  echo "[ERROR] Detected ${PRETTY}. This script supports Ubuntu or Debian 12 (bookworm) only."
   exit 1
 fi
 
-echo "[INFO] Ubuntu detected: ${PRETTY_NAME}"
+# On Debian, ensure we're on bookworm (12)
+if [ "$ID" = "debian" ] && [ "$VERSION_CODENAME" != "bookworm" ]; then
+  echo "[ERROR] Detected Debian '${VERSION_CODENAME}'. This script targets Debian 12 (bookworm)."
+  echo "Please adjust the repo line for your Debian release."
+  exit 1
+fi
 
-install_mongodb_ubuntu() {
-  echo "[INFO] Installing MongoDB ${MONGO_VERSION} on Ubuntu..."
+echo "[INFO] Detected OS: ${PRETTY}"
+
+install_mongodb() {
+  echo "[INFO] Installing MongoDB ${MONGO_VERSION} on ${PRETTY}..."
+
+  if ! command -v apt-get >/dev/null 2>&1; then
+    echo "[ERROR] apt-get not found. This script requires apt-based systems."
+    exit 1
+  fi
 
   sudo apt-get update -y
   sudo apt-get install -y curl gnupg lsb-release
 
-  # Import MongoDB public key for the chosen series
+  # Import MongoDB public key for the selected series
   KEYRING="/usr/share/keyrings/mongodb-server-${MONGO_VERSION}.gpg"
   curl -fsSL "https://pgp.mongodb.com/server-${MONGO_VERSION}.asc" \
     | sudo gpg --dearmor -o "$KEYRING"
 
-  CODENAME="${VERSION_CODENAME:-}"
-  if [ -z "$CODENAME" ]; then
-    echo "[ERROR] Could not determine Ubuntu codename."
-    exit 1
+  ARCH="$(dpkg --print-architecture)"
+
+  # Build repo line depending on distro
+  if [ "$ID" = "ubuntu" ]; then
+    if [ -z "${VERSION_CODENAME:-}" ]; then
+      echo "[ERROR] Could not determine Ubuntu codename."
+      exit 1
+    fi
+    # Example codename: jammy, noble, focal (ensure series supports your codename)
+    REPO_LINE="deb [ signed-by=${KEYRING} arch=${ARCH} ] https://repo.mongodb.org/apt/ubuntu ${VERSION_CODENAME}/mongodb-org/${MONGO_VERSION} multiverse"
+    LIST_FILE="/etc/apt/sources.list.d/mongodb-org-${MONGO_VERSION}.list"
+  else
+    # Debian 12 (bookworm)
+    REPO_LINE="deb [ signed-by=${KEYRING} arch=${ARCH} ] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/${MONGO_VERSION} main"
+    LIST_FILE="/etc/apt/sources.list.d/mongodb-org-${MONGO_VERSION}.list"
   fi
 
-  ARCH="$(dpkg --print-architecture)"
-  REPO_LINE="deb [ signed-by=${KEYRING} arch=${ARCH} ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/${MONGO_VERSION} multiverse"
-  echo "$REPO_LINE" | sudo tee "/etc/apt/sources.list.d/mongodb-org-${MONGO_VERSION}.list" >/dev/null
+  echo "$REPO_LINE" | sudo tee "$LIST_FILE" >/dev/null
 
   sudo apt-get update -y
   sudo apt-get install -y mongodb-org
@@ -102,10 +127,11 @@ EOF
 }
 
 start_mongod() {
-  echo "[INFO] Enabling and starting mongod..."
+  echo "[INFO] Enabling and restarting mongod..."
   sudo systemctl daemon-reload || true
   sudo systemctl enable mongod
-  sudo systemctl start mongod
+  # Use restart to ensure new config (auth) is applied reliably
+  sudo systemctl restart mongod
   sleep 3
   sudo systemctl --no-pager --full status mongod || true
 }
@@ -156,18 +182,31 @@ EOF
 
 verify_connection() {
   echo "[INFO] Verifying connection string..."
-  URI="mongodb://${DB_USER}:${DB_PASS}@localhost:${PORT}/${DB_NAME}?authSource=admin"
-  echo "[INFO] Testing: $URI"
-  mongosh "$URI" --eval 'db.runCommand({ ping: 1 })' || {
-    echo "[ERROR] Connection test failed."
-    exit 1
-  }
+  APP_URI="mongodb://${DB_USER}:${DB_PASS}@localhost:${PORT}/${DB_NAME}?authSource=admin"
+  echo "[INFO] Testing app URI: ${APP_URI}"
+  if ! mongosh "${APP_URI}" --eval 'db.runCommand({ ping: 1 })'; then
+    echo "[WARN] App user ping failed. Trying admin to diagnose..."
+    ADMIN_URI="mongodb://${ADMIN_USER}:${ADMIN_PASS}@localhost:${PORT}/admin?authSource=admin"
+    if mongosh "${ADMIN_URI}" --eval 'db.runCommand({ ping: 1 })'; then
+      echo "[INFO] Admin ping succeeded. App user may be incorrect."
+      echo "[HINT] Check DB_USER/DB_PASS/DB_NAME, or recreate the app user."
+      echo "       Username: ${DB_USER}"
+      echo "       Database: ${DB_NAME}"
+      echo "       authSource=admin"
+      exit 1
+    else
+      echo "[ERROR] Admin ping failed too. Authentication or config issue."
+      echo "[DEBUG] Tail of mongod logs:"
+      sudo journalctl -u mongod -n 50 --no-pager || true
+      exit 1
+    fi
+  fi
   echo "[INFO] Ping successful. MongoDB is ready."
 }
 
 main() {
   if ! command -v mongod >/dev/null 2>&1; then
-    install_mongodb_ubuntu
+    install_mongodb
   else
     echo "[INFO] mongod already installed. Skipping installation."
   fi
