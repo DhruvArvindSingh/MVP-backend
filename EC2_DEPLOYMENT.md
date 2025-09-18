@@ -57,6 +57,14 @@ This script will:
 ./ec2.sh
 ```
 
+**Note** : Create `.env` file and add all the credentials as mentioned in the `.env.example` 
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+
 ## 2.2 Setup Postgres Database
 
 **Note:** You can skip this step if you are using external Postgres database

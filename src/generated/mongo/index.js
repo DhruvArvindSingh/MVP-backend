@@ -141,6 +141,10 @@ const config = {
         "fromEnvVar": null,
         "value": "debian-openssl-3.0.x",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-musl-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -167,8 +171,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file for MongoDB\n// Learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/mongo\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"MONGO_DATABASE_LINK\")\n}\n\nmodel User {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel File {\n  id                  String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  userEmail           String\n  fileName            String\n  fileContent         String\n  isPasswordProtected Boolean  @default(false)\n  createdAt           DateTime @default(now())\n  updatedAt           DateTime @updatedAt\n}\n",
-  "inlineSchemaHash": "8d9abcaff71f6fb18ba6dcc3a7606460767f66b162d127a0e18501ba7b66e7dd",
+  "inlineSchema": "// This is your Prisma schema file for MongoDB\n// Learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/mongo\"\n  binaryTargets = [\"native\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"MONGO_DATABASE_LINK\")\n}\n\nmodel User {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel File {\n  id                  String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  userEmail           String\n  fileName            String\n  fileContent         String\n  isPasswordProtected Boolean  @default(false)\n  createdAt           DateTime @default(now())\n  updatedAt           DateTime @updatedAt\n}\n",
+  "inlineSchemaHash": "52c9674ecd5131e355152e334a0e9150198daa61e75e2f846b5f23f4bfbaf357",
   "copyEngine": true
 }
 
@@ -209,6 +213,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
 path.join(process.cwd(), "src/generated/mongo/libquery_engine-debian-openssl-3.0.x.so.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-linux-musl-openssl-3.0.x.so.node");
+path.join(process.cwd(), "src/generated/mongo/libquery_engine-linux-musl-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "src/generated/mongo/schema.prisma")

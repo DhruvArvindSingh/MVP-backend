@@ -147,6 +147,10 @@ const config = {
         "fromEnvVar": null,
         "value": "debian-openssl-3.0.x",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-musl-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -164,6 +168,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -172,8 +177,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file for PostgreSQL\n// Learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/postgres\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"POSTGRES_DATABASE_LINK\")\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique @db.VarChar(255)\n  password  String   @db.VarChar(255)\n  createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)\n  updatedAt DateTime @default(now()) @updatedAt @map(\"updated_at\") @db.Timestamptz(6)\n\n  // Relationships\n  files File[]\n\n  @@map(\"users\")\n}\n\nmodel File {\n  id                  Int      @id @default(autoincrement())\n  userEmail           String   @map(\"user_email\") @db.VarChar(255)\n  fileName            String   @map(\"file_name\") @db.VarChar(255)\n  fileContent         String   @map(\"file_content\") @db.Text\n  isPasswordProtected Boolean  @default(false) @map(\"is_password_protected\")\n  createdAt           DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)\n  updatedAt           DateTime @default(now()) @updatedAt @map(\"updated_at\") @db.Timestamptz(6)\n\n  // Relationships\n  user User @relation(fields: [userEmail], references: [email], onDelete: Cascade)\n\n  @@map(\"files\")\n}\n",
-  "inlineSchemaHash": "dd6c34728bdd664096fd0cfc842047fa3bde29e0eca3b2e701acad44cb18b546",
+  "inlineSchema": "// This is your Prisma schema file for PostgreSQL\n// Learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/postgres\"\n  binaryTargets = [\"native\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"POSTGRES_DATABASE_LINK\")\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique @db.VarChar(255)\n  password  String   @db.VarChar(255)\n  createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)\n  updatedAt DateTime @default(now()) @updatedAt @map(\"updated_at\") @db.Timestamptz(6)\n\n  // Relationships\n  files File[]\n\n  @@map(\"users\")\n}\n\nmodel File {\n  id                  Int      @id @default(autoincrement())\n  userEmail           String   @map(\"user_email\") @db.VarChar(255)\n  fileName            String   @map(\"file_name\") @db.VarChar(255)\n  fileContent         String   @map(\"file_content\") @db.Text\n  isPasswordProtected Boolean  @default(false) @map(\"is_password_protected\")\n  createdAt           DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)\n  updatedAt           DateTime @default(now()) @updatedAt @map(\"updated_at\") @db.Timestamptz(6)\n\n  // Relationships\n  user User @relation(fields: [userEmail], references: [email], onDelete: Cascade)\n\n  @@map(\"files\")\n}\n",
+  "inlineSchemaHash": "e4ce9629044b4281800a71dbda9a768d3c05e451e2b3fe8e7b852bb37f241027",
   "copyEngine": true
 }
 config.dirname = '/'

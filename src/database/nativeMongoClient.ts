@@ -6,10 +6,6 @@ dotenv.config();
 // MongoDB connection URL
 const MONGO_DATABASE_LINK = process.env.MONGO_DATABASE_LINK as string;
 
-if (!MONGO_DATABASE_LINK) {
-    throw new Error('MONGO_DATABASE_LINK environment variable is required');
-}
-
 // Extract database name from connection string
 const dbName = 'database_name'; // Default database name
 
@@ -22,6 +18,11 @@ export const nativeMongoDbReady: Promise<void> = initializeConnection();
 
 async function initializeConnection(): Promise<void> {
     try {
+        if (!MONGO_DATABASE_LINK) {
+            console.warn("⚠️  MONGO_DATABASE_LINK not configured. MongoDB features will be disabled.");
+            return;
+        }
+
         console.log('🔗 Attempting to connect to MongoDB database (Native Driver)...');
 
         client = new MongoClient(MONGO_DATABASE_LINK, {
@@ -39,7 +40,9 @@ async function initializeConnection(): Promise<void> {
         console.log('✅ MongoDB database connected successfully via Native Driver');
     } catch (error) {
         console.error('❌ Failed to connect to MongoDB via Native Driver:', error);
-        throw error;
+        // Don't throw the error to prevent application crash
+        client = null;
+        db = null;
     }
 }
 
