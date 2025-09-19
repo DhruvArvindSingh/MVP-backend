@@ -29,6 +29,9 @@
                 <button class="tab-button" onclick="openList('Firebase')">
                     Firebase
                 </button>
+                <button class="tab-button" onclick="openList('Neo4j')">
+                    Neo4j
+                </button>
             </div>
             <div id="file-list-container" class="file-list-container"></div>
         </div>
@@ -85,7 +88,8 @@
                     (storageType === 'S3' && buttonText === 'AWS S3') ||
                     (storageType === 'Postgres' && buttonText === 'PostgreSQL') ||
                     (storageType === 'Mongo' && buttonText === 'MongoDB') ||
-                    (storageType === 'Firebase' && buttonText === 'Firebase');
+                    (storageType === 'Firebase' && buttonText === 'Firebase') ||
+                    (storageType === 'Neo4j' && buttonText === 'Neo4j');
 
                 if (isActive) {
                     button.classList.add('active');
@@ -183,6 +187,7 @@
             if (buttonText === 'PostgreSQL') return 'Postgres';
             if (buttonText === 'MongoDB') return 'Mongo';
             if (buttonText === 'Firebase') return 'Firebase';
+            if (buttonText === 'Neo4j') return 'Neo4j';
 
             return 'S3'; // default fallback
         }
