@@ -137,7 +137,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/dhruv-singh/C_drive/C4GT/MVP-backend/src/generated/postgres",
+      "value": "/home/dhruv/C_drive/C4GT/MVP-backend/src/generated/postgres",
       "fromEnvVar": null
     },
     "config": {
@@ -155,7 +155,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/dhruv-singh/C_drive/C4GT/MVP-backend/prisma/postgres.prisma",
+    "sourceFilePath": "/home/dhruv/C_drive/C4GT/MVP-backend/prisma/postgres.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -169,7 +169,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

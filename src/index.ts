@@ -30,7 +30,10 @@ import {
     listAllNeo4j,
     uploadFileNeo4j,
     getFileNeo4j,
-    deleteFileNeo4j
+    deleteFileNeo4j,
+    listAllLighthouse,
+    uploadFileLighthouse,
+    getFileLighthouse
 } from "./controllers";
 
 import { dbReady } from "./database/index.js";
@@ -116,6 +119,10 @@ app.post("/api/v1/listAllNeo4j", verify, listAllNeo4j);
 app.post("/api/v1/uploadFileNeo4j", verify, uploadFileNeo4j);
 app.post("/api/v1/getFileNeo4j", verify, getFileNeo4j);
 app.post("/api/v1/deleteFileNeo4j", verify, deleteFileNeo4j);
+
+app.post("/api/v1/listAllLighthouse", verify, listAllLighthouse);
+app.post("/api/v1/uploadFileLighthouse", verify, uploadFileLighthouse);
+app.post("/api/v1/getFileLighthouse", verify, getFileLighthouse);
 
 
 async function startServer() {

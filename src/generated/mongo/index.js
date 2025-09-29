@@ -130,7 +130,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/dhruv-singh/C_drive/C4GT/MVP-backend/src/generated/mongo",
+      "value": "/home/dhruv/C_drive/C4GT/MVP-backend/src/generated/mongo",
       "fromEnvVar": null
     },
     "config": {
@@ -148,7 +148,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/dhruv-singh/C_drive/C4GT/MVP-backend/prisma/mongo.prisma",
+    "sourceFilePath": "/home/dhruv/C_drive/C4GT/MVP-backend/prisma/mongo.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

@@ -27,6 +27,9 @@ import listAllNeo4j from "./neo4j/listAllNeo4j";
 import uploadFileNeo4j from "./neo4j/uploadFileNeo4j";
 import getFileNeo4j from "./neo4j/getFileNeo4j";
 import deleteFileNeo4j from "./neo4j/deleteFileNeo4j";
+import listAllLighthouse from "./lighthouse/listAllLighthouse";
+import uploadFileLighthouse from "./lighthouse/uploadFileLighthouse";
+import getFileLighthouse from "./lighthouse/getFileLighthouse";
 
 export {
     checkAuth,
@@ -57,5 +60,8 @@ export {
     listAllNeo4j,
     uploadFileNeo4j,
     getFileNeo4j,
-    deleteFileNeo4j
+    deleteFileNeo4j,
+    listAllLighthouse,
+    uploadFileLighthouse,
+    getFileLighthouse
 }
