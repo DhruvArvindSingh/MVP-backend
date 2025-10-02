@@ -183,7 +183,7 @@ server {
 Enable to config
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/mvp-be.dsingh.fun /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/your-domain.com /etc/nginx/sites-enabled/
 ```
 
 Test Nginx config:
