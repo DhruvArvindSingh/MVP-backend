@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { doc, getDoc } from "firebase/firestore";
 import db from "../../firebase/index.js";
 
 export default async function getFileFirebase(req: Request, res: Response) {
@@ -16,10 +15,10 @@ export default async function getFileFirebase(req: Request, res: Response) {
     try {
         // Reference to the specific document
         const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
-        const docRef = doc(db, email, Name);
-        const docSnap = await getDoc(docRef);
+        const docRef = db.collection(email).doc(Name);
+        const docSnap = await docRef.get();
 
-        if (!docSnap.exists()) {
+        if (!docSnap.exists) {
             return res.status(404).json({
                 success: false,
                 error: "File not found"
@@ -33,9 +32,9 @@ export default async function getFileFirebase(req: Request, res: Response) {
             message: "File retrieved successfully",
             fileName: fileName,
             isPasswordProtected: isPasswordProtected,
-            content: data.fileContent || null,
-            lastModified: data.lastModified || null,
-            contentType: data.contentType || "text/plain", // fallback if not stored
+            content: data?.fileContent || null,
+            lastModified: data?.lastModified || null,
+            contentType: data?.contentType || "text/plain", // fallback if not stored
         });
     } catch (error) {
         console.error("Failed to retrieve file", error);

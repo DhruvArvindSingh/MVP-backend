@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import db from "../../firebase/index.js";
 
 export default async function deleteFileFirebase(req: Request, res: Response) {
@@ -15,11 +14,11 @@ export default async function deleteFileFirebase(req: Request, res: Response) {
 
     try {
         const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
-        const docRef = doc(db, email, Name);
+        const docRef = db.collection(email).doc(Name);
 
         // Check if the document exists before deleting
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
             return res.status(404).json({
                 success: false,
                 error: "File not found",
@@ -27,7 +26,7 @@ export default async function deleteFileFirebase(req: Request, res: Response) {
         }
 
         // Delete the document
-        await deleteDoc(docRef);
+        await docRef.delete();
 
         return res.status(200).json({
             success: true,

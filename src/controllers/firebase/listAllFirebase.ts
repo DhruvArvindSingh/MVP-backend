@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { collection, getDocs } from "firebase/firestore";
 import db from "../../firebase/index.js";
 
 export default async function listAllFirebase(req: Request, res: Response) {
@@ -14,10 +13,10 @@ export default async function listAllFirebase(req: Request, res: Response) {
     }
 
     try {
-        const colRef = collection(db, email);
+        const colRef = db.collection(email);
 
         // Get all documents in the collection
-        const snapshot = await getDocs(colRef);
+        const snapshot = await colRef.get();
 
         // Build files object: { docId: lastModified }
         const files: Record<string, string> = {};
