@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { collection, getDocs } from "firebase/firestore";
 import db from "../../firebase/index.js";
 
 export default async function listAllFirebase(req: Request, res: Response) {
@@ -14,15 +13,15 @@ export default async function listAllFirebase(req: Request, res: Response) {
     }
 
     try {
-        const colRef = collection(db, email);
+        const colRef = db.collection(email);
 
         // Get all documents in the collection
-        const snapshot = await getDocs(colRef);
+        const snapshot = await colRef.get();
 
         // Build files object: { docId: lastModified }
         const files: Record<string, string> = {};
         const passwordProtectedFiles: Record<string, string> = {};
-        snapshot.docs.forEach((doc) => {
+        snapshot.docs.forEach((doc: any) => {
             const data = doc.data();
             if (doc.id.startsWith("__password_protected__")) {
                 passwordProtectedFiles[doc.id.replace("__password_protected__", "")] = data.lastModified || null;

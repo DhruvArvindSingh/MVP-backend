@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import db from "../../firebase/index.js";
 
 export default async function uploadFileFirebase(req: Request, res: Response) {
@@ -13,12 +12,12 @@ export default async function uploadFileFirebase(req: Request, res: Response) {
     }
     try {
         const Name = isPasswordProtected ? `__password_protected__${fileName}` : fileName;
-        const docRef = doc(db, email, Name);
+        const docRef = db.collection(email).doc(Name);
 
         // Check if document exists
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            await setDoc(doc(db, email, Name), {
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+            await docRef.set({
                 fileContent: fileContent,
                 lastModified: new Date().toISOString()
             }, { merge: true });
@@ -28,7 +27,7 @@ export default async function uploadFileFirebase(req: Request, res: Response) {
                 fileName: fileName
             });
         }
-        await setDoc(doc(db, email, Name), {
+        await docRef.set({
             fileContent: fileContent,
             lastModified: new Date().toISOString(),
             createdAt: new Date().toISOString(),
